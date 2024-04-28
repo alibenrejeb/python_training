@@ -7,6 +7,14 @@ from pytube import YouTube
 context = ssl._create_unverified_context()
 ssl._create_default_https_context = ssl._create_unverified_context
 
+BASE_YOUTUBE_URL = 'https://www.youtube.com/watch?v='
+
+def get_video_url_from_user(url):
+    if not url.lower().startswith(BASE_YOUTUBE_URL):
+        print("ERROR: Please enter your youtube video url")
+        return get_video_url_from_user(url)
+    return url
+
 def on_download_progress(stream, chunk, bytes_remaining):
     bytes_downloaded = stream.filesize - bytes_remaining
     percent = bytes_downloaded * 100 / stream.filesize
@@ -36,6 +44,6 @@ def download_video(url):
     print("Done")
 
     os.remove(video_stream_filename)
-    os.remove(audio_stream_filename)
+    # os.remove(audio_stream_filename)
     os.rmdir("videos")
-    os.rmdir("audios")
+    # os.rmdir("audios")

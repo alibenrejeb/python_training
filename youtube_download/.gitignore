@@ -1,3 +1,5 @@
 .venv
 audio
 video
+*.mp4
+__pycache__

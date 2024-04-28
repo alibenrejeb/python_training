@@ -1,4 +1,6 @@
 import ssl
+import ffmpeg
+import os
 from pytube import YouTube
 
 BASE_YOUTUBE_URL = 'https://www.youtube.com/watch?v='
@@ -48,17 +50,47 @@ def get_details_youtube(yt):
     # audio_stream = yt.streams.filter(only_audio=True).first()
 
 # url = "https://www.youtube.com/watch?v=hhhbB1LpVTs"
-# url = "https://www.youtube.com/watch?v=o9cSL3yHA20"
-url = get_video_url_from_user()
+url = "https://www.youtube.com/watch?v=o9cSL3yHA20"
+# url = get_video_url_from_user()
 
 yt = YouTube(url)
 yt.register_on_progress_callback(on_download_progress)
 
-streams = yt.streams.filter(progressive=True, file_extension='mp4')
-tag_stream = get_video_stream_itag_from_user(streams)
-stream = yt.streams.get_by_itag(tag_stream)
+# streams = yt.streams.filter(progressive=True, file_extension='mp4')
+# tag_stream = get_video_stream_itag_from_user(streams)
+# stream = yt.streams.get_by_itag(tag_stream)
 # stream = yt.streams.get_highest_resolution()
-print("Download...")
-stream.download()
-print("Done")
+# print("Download...")
+# stream.download()
+# print("Done")
 
+streams = yt.streams.filter(progressive=False, file_extension='mp4', type='video').order_by('resolution').desc()
+video_stream = streams.first()
+streams = yt.streams.filter(progressive=False, file_extension='mp4', type='audio').order_by('abr').desc()
+audio_stream = streams.first()
+# print("Video stream", video_stream)
+# print("Audio stream", audio_stream)
+
+# for stream in streams:
+#     print(stream)
+
+print("Video download...")
+video_stream.download("video")
+print("Done")
+print("")
+
+print("Audio download...")
+audio_stream.download("audio")
+print("Done")
+print("")
+
+print("Combined video download...")
+video_stream_filename = os.path.join("video", video_stream.default_filename)
+audio_stream_filename = os.path.join("audio", video_stream.default_filename)
+output_stream_filename = video_stream.default_filename
+video_stream_input = ffmpeg.input(video_stream_filename)
+audio_stream_input = ffmpeg.input(audio_stream_filename)
+stream = ffmpeg.output(video_stream_input, audio_stream_input, output_stream_filename, vcodec="copy", acodec="copy", loglevel="quiet")
+ffmpeg.run(stream_spec=stream, overwrite_output=True)
+
+print("Done")

@@ -72,6 +72,8 @@ while True:
         command_split = command.split(' ')
         if len(command_split) == 2 and command_split[0] == 'get':
             get_filename = command_split[1]
+        elif len(command_split) == 2 and command_split[0] == 'screen':
+            get_filename = f'{command_split[1]}.png'
     except KeyboardInterrupt as e:
         print(e)
         break
